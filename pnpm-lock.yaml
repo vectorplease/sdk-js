@@ -162,6 +162,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  lodash@<4.18.1: ^4.18.1
+
 importers:
 
   .:
@@ -1884,9 +1887,6 @@ packages:
 
   lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
-
-  lodash@4.17.21:
-    resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
   lodash@4.18.1:
     resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
@@ -4178,8 +4178,6 @@ snapshots:
 
   lodash.camelcase@4.3.0: {}
 
-  lodash@4.17.21: {}
-
   lodash@4.18.1: {}
 
   magic-string@0.30.21:
@@ -4385,7 +4383,7 @@ snapshots:
       http-reasons: 0.1.0
       iconv-lite: 0.6.3
       liquid-json: 0.3.1
-      lodash: 4.17.21
+      lodash: 4.18.1
       mime-format: 2.0.1
       mime-types: 2.1.35
       postman-url-encoder: 3.0.5
