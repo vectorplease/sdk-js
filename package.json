@@ -26,8 +26,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
-    "prepare": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "build": "tsup src/index.ts --format esm,cjs --clean && tsc -p tsconfig.build.json",
+    "prepare": "tsup src/index.ts --format esm,cjs --clean && tsc -p tsconfig.build.json",
     "generate": "openapi-typescript openapi/openapi.json -o src/generated/schema.ts",
     "generate:check": "openapi-typescript openapi/openapi.json -o src/generated/schema.ts && git diff --exit-code src/generated",
     "lint": "eslint .",

@@ -1,3 +1,16 @@
 # Install scripts: true runs them, false skips them. Anything unlisted fails the install.
 allowBuilds:
   esbuild: true
+  # Install-time analytics pinged by some dev tools; never needed.
+  '@scarf/scarf': false
+
+# Patched versions of vulnerable transitive dev dependencies (from Prism). Remove when upstream updates.
+overrides:
+  lodash@<4.18.1: ^4.18.1
+
+auditConfig:
+  ignoreGhsas:
+    # @faker-js/faker via Prism (dev only). Exploitable only by passing attacker-controlled
+    # templates to helpers.fake; Prism feeds it our own spec in a local test process. The patched
+    # faker breaks Prism's postman-collection dependency. Remove when Prism updates.
+    - GHSA-qxc2-j82w-r537
