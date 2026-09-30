@@ -1,0 +1,542 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Vector, Please API",
+    "version": "0.1.0",
+    "description": "Bitmap in, sticker-ready SVG out."
+  },
+  "servers": [
+    {
+      "url": "https://api.vectorplease.com"
+    }
+  ],
+  "security": [
+    {
+      "apiKey": []
+    }
+  ],
+  "paths": {
+    "/v1/presets": {
+      "get": {
+        "operationId": "listPresets",
+        "summary": "List the conversion presets",
+        "description": "Named starting points for `params`, one per kind of artwork.",
+        "responses": {
+          "200": {
+            "description": "Every preset.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, unknown, or revoked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversions": {
+      "post": {
+        "operationId": "createConversion",
+        "summary": "Convert an image into a sticker SVG",
+        "description": "Waits briefly for the result. If the conversion takes longer, answers 202 and the result is fetched with `GET /v1/conversions/{id}`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConversionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The finished conversion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversion"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Still converting. Poll the URL in the Location header.",
+            "headers": {
+              "Location": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingConversion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, unknown, or revoked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The API key lacks the `conversions:write` scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The image could not be decoded, is too large, or is empty.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversions/{id}": {
+      "get": {
+        "operationId": "getConversion",
+        "summary": "Get a conversion",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "The conversion id."
+            },
+            "required": true,
+            "description": "The conversion id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The finished conversion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversion"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Still converting.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingConversion"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, unknown, or revoked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The API key lacks a `conversions` scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No conversion with this id belongs to this API key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ConversionMetrics": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "height": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "ssim": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "pathCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "nodeCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "outerContourCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "width",
+          "height",
+          "ssim",
+          "pathCount",
+          "nodeCount",
+          "outerContourCount",
+          "bytes"
+        ]
+      },
+      "ConversionParams": {
+        "type": "object",
+        "properties": {
+          "paletteSize": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 32
+          },
+          "borderWidth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 64
+          },
+          "filterSpeckle": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 64
+          },
+          "cornerThreshold": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 180
+          },
+          "pathPrecision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4
+          }
+        }
+      },
+      "CreateConversionRequest": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "object",
+            "properties": {
+              "base64": {
+                "type": "string",
+                "minLength": 1,
+                "format": "base64",
+                "contentEncoding": "base64",
+                "pattern": "^$|^(?:[0-9a-zA-Z+/]{4})*(?:(?:[0-9a-zA-Z+/]{2}==)|(?:[0-9a-zA-Z+/]{3}=))?$"
+              }
+            },
+            "required": [
+              "base64"
+            ]
+          },
+          "params": {
+            "$ref": "#/components/schemas/ConversionParams"
+          }
+        },
+        "required": [
+          "image"
+        ]
+      },
+      "FailureCode": {
+        "type": "string",
+        "enum": [
+          "low_ssim",
+          "multiple_contours"
+        ]
+      },
+      "Conversion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "succeeded",
+              "failed"
+            ]
+          },
+          "svg": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/ConversionMetricsOutput"
+          },
+          "failures": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FailureCode"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "svg",
+          "metrics",
+          "failures"
+        ],
+        "additionalProperties": false
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "unauthorized",
+                  "forbidden",
+                  "invalid_request",
+                  "unsupported_image",
+                  "empty_image",
+                  "internal_error"
+                ]
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      },
+      "PendingConversion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "status": {
+            "type": "string",
+            "const": "pending"
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "PresetList": {
+        "type": "object",
+        "properties": {
+          "presets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "enum": [
+                    "logo",
+                    "illustration",
+                    "text",
+                    "photo"
+                  ]
+                },
+                "description": {
+                  "type": "string"
+                },
+                "params": {
+                  "$ref": "#/components/schemas/ConversionParamsOutput"
+                }
+              },
+              "required": [
+                "name",
+                "description",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "presets"
+        ],
+        "additionalProperties": false
+      },
+      "ConversionMetricsOutput": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "height": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "ssim": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "pathCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "nodeCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "outerContourCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "width",
+          "height",
+          "ssim",
+          "pathCount",
+          "nodeCount",
+          "outerContourCount",
+          "bytes"
+        ],
+        "additionalProperties": false
+      },
+      "ConversionParamsOutput": {
+        "type": "object",
+        "properties": {
+          "paletteSize": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 32
+          },
+          "borderWidth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 64
+          },
+          "filterSpeckle": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 64
+          },
+          "cornerThreshold": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 180
+          },
+          "pathPrecision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "apiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "An API key: `vp_test_…` or `vp_live_…`."
+      }
+    }
+  }
+}
