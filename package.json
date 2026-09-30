@@ -1,0 +1,56 @@
+{
+  "name": "@vectorplease/sdk",
+  "version": "0.0.0",
+  "description": "TypeScript client for the Vector, Please API: bitmap in, sticker-ready SVG out.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vectorplease/sdk-js.git"
+  },
+  "packageManager": "pnpm@12.8.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "prepare": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "generate": "openapi-typescript openapi/openapi.json -o src/generated/schema.ts",
+    "generate:check": "openapi-typescript openapi/openapi.json -o src/generated/schema.ts && git diff --exit-code src/generated",
+    "lint": "eslint .",
+    "typecheck": "tsc",
+    "test": "vitest run --exclude 'test/contract/**'",
+    "test:contract": "vitest run test/contract",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "leak-guard": "tsx scripts/leak-guard.ts",
+    "changeset": "changeset"
+  },
+  "devDependencies": {
+    "@changesets/cli": "3.0.3",
+    "@stoplight/prism-cli": "5.16.0",
+    "@types/node": "^24.19.0",
+    "eslint": "10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "openapi-typescript": "7.13.0",
+    "prettier": "3.9.9",
+    "tsup": "8.5.1",
+    "tsx": "^4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vitest": "5.0.2"
+  }
+}

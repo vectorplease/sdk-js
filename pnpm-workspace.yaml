@@ -1,0 +1,3 @@
+# Install scripts: true runs them, false skips them. Anything unlisted fails the install.
+allowBuilds:
+  esbuild: true
