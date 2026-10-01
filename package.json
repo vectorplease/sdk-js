@@ -1,6 +1,6 @@
 {
   "name": "@vectorplease/sdk",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "TypeScript client for the Vector, Please API: bitmap in, sticker-ready SVG out.",
   "license": "MIT",
   "type": "module",
